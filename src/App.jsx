@@ -6,13 +6,27 @@ import {
 import {
   LayoutDashboard, ListOrdered, Calendar, Trophy, TrendingUp,
   Target, CheckCircle, AlertCircle, RefreshCw, ChevronDown,
-  Building2, User, X, SlidersHorizontal, ArrowUpDown,
+  Building2, User, X, SlidersHorizontal, LogOut, Lock,
 } from 'lucide-react';
+
+// ─── USUÁRIOS ─────────────────────────────────────────────────────────────────
+// Edite esta lista para gerenciar acessos.
+// perfil: 'admin' vê tudo | 'vendedora' vê apenas seus próprios dados
+const USUARIOS = [
+  { usuario: 'admin',    senha: 'admin123',  perfil: 'admin',     nome: 'Admin',     nomeCompleto: '' },
+  { usuario: 'anamelia',    senha: '613320',  perfil: 'admin',     nome: 'Anamélia',     nomeCompleto: '' },
+  { usuario: 'maria',    senha: '1102',  perfil: 'vendedora', nome: 'Maria',     nomeCompleto: 'Maria Clara David Pais' },
+  { usuario: 'stephany', senha: '301418Te.,',  perfil: 'vendedora', nome: 'Stephany',  nomeCompleto: 'Stephany Carolliny Soares Cândido Moreira' },
+  { usuario: 'jenifer',  senha: '190880',   perfil: 'vendedora', nome: 'Jenifer',   nomeCompleto: 'Jenifer Mikaele Santos de Oliveira' },
+  { usuario: 'marina',   senha: '#SzMa2008', perfil: 'vendedora', nome: 'Marina',    nomeCompleto: 'Marina David de Souza' },
+  { usuario: 'livia',    senha: 'bananalike',  perfil: 'vendedora', nome: 'Livia',     nomeCompleto: 'Livia Quirino Santos' },
+];
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 // Troque pelo IP da máquina quando acessar pelo celular na mesma rede
 const API_BASE = "https://dashboard-prohair-api.onrender.com";
 // caso for testar local use: http://127.0.0.1:8000
+// caso for dar git usar esse: https://dashboard-prohair-api.onrender.com
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
@@ -58,6 +72,91 @@ const STATUS_COR = {
   'Enviado':           '#10b981',
   'Entregue':          '#22c55e',
 };
+
+// ─── TELA DE LOGIN ────────────────────────────────────────────────────────────
+function LoginScreen({ onLogin }) {
+  const [usuario, setUsuario] = useState('');
+  const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = () => {
+    setErro('');
+    setLoading(true);
+    setTimeout(() => {
+      const user = USUARIOS.find(u => u.usuario === usuario.trim() && u.senha === senha);
+      if (user) {
+        onLogin(user);
+      } else {
+        setErro('Usuário ou senha incorretos.');
+      }
+      setLoading(false);
+    }, 400);
+  };
+
+  return (
+    <div style={{
+      minHeight:'100vh', background: C.bg, display:'flex', alignItems:'center',
+      justifyContent:'center', fontFamily:'system-ui,-apple-system,sans-serif', padding:20,
+    }}>
+      <div style={{
+        background: C.card, border:`1px solid ${C.border}`, borderRadius:20,
+        padding:'40px 36px', width:'100%', maxWidth:380,
+        boxShadow:'0 40px 80px rgba(0,0,0,0.5)',
+      }}>
+        <div style={{ textAlign:'center', marginBottom:32 }}>
+          <img src="/logo-prohair.png" alt="ProHair" style={{ height:44, objectFit:'contain', display:'block', margin:'0 auto' }}
+          onError={e => { e.target.style.display='none'; }} />
+          <div style={{ color: C.muted, fontSize:12, marginTop:10, letterSpacing:1 }}>PAINEL COMERCIAL</div>
+        </div>
+
+        <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+          <div>
+            <label style={{ color: C.muted, fontSize:11, fontWeight:700, letterSpacing:0.8, textTransform:'uppercase', display:'block', marginBottom:6 }}>
+              Usuário
+            </label>
+            <input
+              type="text" value={usuario} onChange={e => setUsuario(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
+              placeholder="seu usuário"
+              style={{ width:'100%', background: C.faint, border:`1px solid ${erro ? C.danger : C.border}`, borderRadius:10, padding:'10px 14px', color: C.text, fontSize:14, outline:'none', boxSizing:'border-box' }}
+            />
+          </div>
+          <div>
+            <label style={{ color: C.muted, fontSize:11, fontWeight:700, letterSpacing:0.8, textTransform:'uppercase', display:'block', marginBottom:6 }}>
+              Senha
+            </label>
+            <input
+              type="password" value={senha} onChange={e => setSenha(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
+              placeholder="••••••••"
+              style={{ width:'100%', background: C.faint, border:`1px solid ${erro ? C.danger : C.border}`, borderRadius:10, padding:'10px 14px', color: C.text, fontSize:14, outline:'none', boxSizing:'border-box' }}
+            />
+          </div>
+
+          {erro && (
+            <div style={{ color: C.danger, fontSize:12, display:'flex', alignItems:'center', gap:6 }}>
+              <AlertCircle size={13} /> {erro}
+            </div>
+          )}
+
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            style={{
+              background: C.gold, color:'#000', border:'none', borderRadius:10,
+              padding:'12px 0', cursor:'pointer', fontWeight:800, fontSize:14, marginTop:4,
+              display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+              opacity: loading ? 0.7 : 1,
+            }}
+          >
+            <Lock size={15} /> {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── COMPONENTES BÁSICOS ──────────────────────────────────────────────────────
 
@@ -226,7 +325,8 @@ function FiltroPeriodo({ periodo, setPeriodo, dataInicio, setDataInicio, dataFim
 }
 
 // ─── ABA DASHBOARD ────────────────────────────────────────────────────────────
-function DashboardTab() {
+function DashboardTab({ usuario }) {
+  const isAdmin = usuario.perfil === 'admin';
   const [periodo, setPeriodo] = useState('Este Mês');
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
@@ -243,6 +343,9 @@ function DashboardTab() {
       if (!ini || !fim) { setLoading(false); return; }
       url += `&data_inicio=${ini}&data_fim=${fim}`;
     }
+    // Vendedora: filtra no servidor — ela só recebe seus próprios dados
+    if (!isAdmin) url += `&vendedora=${encodeURIComponent(usuario.nomeCompleto)}`;
+
     fetch(url)
       .then(r => r.json())
       .then(d => {
@@ -275,6 +378,47 @@ function DashboardTab() {
     .filter(x => x.value > 0)
     .sort((a,b) => b.value - a.value);
 
+  // ── VISÃO VENDEDORA ──────────────────────────────────────────────────────────
+  if (!isAdmin) {
+    const v = dados.ranking[0];
+    const total = v?.total ?? 0;
+    const meta  = v?.meta  ?? 0;
+    const perc  = meta > 0 ? (total / meta) * 100 : 0;
+    const filtros = (
+      <FiltroPeriodo periodo={periodo} setPeriodo={setPeriodo}
+        dataInicio={dataInicio} setDataInicio={setDataInicio}
+        dataFim={dataFim} setDataFim={setDataFim} onBuscar={buscar} />
+    );
+    return (
+      <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+        <style>{`.kpi-v{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:480px){.kpi-v{grid-template-columns:1fr}}`}</style>
+        <div style={{ display:'flex', flexWrap:'wrap', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+          <div>
+            <h2 style={{ color: C.text, fontSize:20, fontWeight:800, margin:0 }}>Olá, {usuario.nome} 👋</h2>
+            {atualizado && <span style={{ color: C.muted, fontSize:11 }}>Atualizado às {atualizado}</span>}
+          </div>
+          {filtros}
+        </div>
+        {v ? (
+          <>
+            <div className="kpi-v">
+              <KpiCard icon={TrendingUp} label="Meu Total" accent={C.gold} destaque value={moeda(total)} sub={`${v.qtd ?? 0} pedidos`} />
+              <KpiCard icon={Target} label="Minha Meta" accent={C.purple} value={moeda(meta)} sub="No período" />
+              <KpiCard icon={Trophy} label="Performance" accent={C.success} value={`${perc.toFixed(1)}%`}
+                sub={perc >= 100 ? '✅ Meta atingida' : '🔴 Em andamento'} />
+            </div>
+            <div style={{ width:'100%', maxWidth:420 }}>
+              <VendedoraCard v={v} i={0} />
+            </div>
+          </>
+        ) : (
+          <div style={{ color: C.muted, textAlign:'center', padding:'3rem' }}>Nenhuma venda no período.</div>
+        )}
+      </div>
+    );
+  }
+
+  // ── VISÃO ADMIN ──────────────────────────────────────────────────────────────
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:28 }}>
 
@@ -755,7 +899,8 @@ function ListaDireta({ pedidos }) {
   );
 }
 
-function PedidosTab() {
+function PedidosTab({ usuario }) {
+  const isAdmin = usuario.perfil === 'admin';
   const [periodo, setPeriodo] = useState('Este Mês');
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
@@ -773,8 +918,13 @@ function PedidosTab() {
       if (!ini || !fim) { setLoading(false); return; }
       url += `&data_inicio=${ini}&data_fim=${fim}`;
     }
-    if (filtroVendedora) url += `&vendedora=${encodeURIComponent(filtroVendedora)}`;
-    if (filtroEmpresa)   url += `&empresa=${encodeURIComponent(filtroEmpresa)}`;
+    // Vendedora: filtro aplicado no servidor — não há como contornar
+    if (!isAdmin) {
+      url += `&vendedora=${encodeURIComponent(usuario.nomeCompleto)}`;
+    } else {
+      if (filtroVendedora) url += `&vendedora=${encodeURIComponent(filtroVendedora)}`;
+      if (filtroEmpresa)   url += `&empresa=${encodeURIComponent(filtroEmpresa)}`;
+    }
 
     fetch(url)
       .then(r => r.json())
@@ -805,7 +955,7 @@ function PedidosTab() {
       b.reduce((s, p) => s + p.valor, 0) - a.reduce((s, p) => s + p.valor, 0)
   );
 
-  const umaVendedora = filtroVendedora !== '';
+  const umaVendedora = !isAdmin || filtroVendedora !== '';
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
@@ -840,7 +990,8 @@ function PedidosTab() {
         {/* Divisor */}
         <div style={{ height:1, background: C.border }} />
 
-        {/* Linha 2 — filtros adicionais */}
+        {/* Linha 2 — filtros adicionais (apenas admin) */}
+        {isAdmin && (
         <div style={{ display:'flex', flexWrap:'wrap', alignItems:'flex-end', gap:12 }}>
           <div style={{ flex:'1 1 160px' }}>
             <label style={{ color: C.muted, fontSize:10, fontWeight:700, letterSpacing:0.8, textTransform:'uppercase', display:'block', marginBottom:6 }}>
@@ -890,6 +1041,7 @@ function PedidosTab() {
             )}
           </div>
         </div>
+        )} {/* fim isAdmin filtros */}
       </div>
 
       {/* ── CONTEÚDO ── */}
@@ -925,6 +1077,24 @@ function PedidosTab() {
 // ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [usuario, setUsuario] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('ph_usuario')) || null; } catch { return null; }
+  });
+
+  const handleLogin = (user) => {
+    localStorage.setItem('ph_usuario', JSON.stringify(user));
+    setUsuario(user);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('ph_usuario');
+    setUsuario(null);
+    setActiveTab('dashboard');
+  };
+
+  if (!usuario) return <LoginScreen onLogin={handleLogin} />;
+
+  const isAdmin = usuario.perfil === 'admin';
 
   const tabs = [
     { id:'dashboard', label:'Dashboard', icon: LayoutDashboard },
@@ -956,46 +1126,57 @@ export default function App() {
           flexDirection:'column', flexShrink:0, position:'sticky', top:0, height:'100vh',
         }}>
           <div style={{ padding:'24px 20px', borderBottom:`1px solid ${C.border}` }}>
-            <img
-                src="/logo-prohair.png"
-                alt="ProHair"
-                style={{ height: 40, objectFit: 'contain' }}
-                />
+            <img src="/logo-prohair.png" alt="ProHair" style={{ height:40, objectFit:'contain' }}
+              onError={e => { e.target.style.display='none'; }} />
           </div>
 
           <nav style={{ padding:'16px 12px', display:'flex', flexDirection:'column', gap:4 }}>
             {tabs.map(tab => {
               const active = activeTab === tab.id;
               return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  style={{
-                    display:'flex', alignItems:'center', gap:12,
-                    padding:'10px 14px', borderRadius:12, border:'none', cursor:'pointer',
-                    background: active ? C.gold + '18' : 'transparent',
-                    color: active ? C.gold : C.muted,
-                    fontWeight: active ? 700 : 500,
-                    fontSize:14, textAlign:'left', transition:'all 0.15s',
-                    borderLeft: active ? `3px solid ${C.gold}` : '3px solid transparent',
-                  }}
-                >
-                  <tab.icon size={18} />
-                  {tab.label}
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+                  display:'flex', alignItems:'center', gap:12,
+                  padding:'10px 14px', borderRadius:12, border:'none', cursor:'pointer',
+                  background: active ? C.gold + '18' : 'transparent',
+                  color: active ? C.gold : C.muted,
+                  fontWeight: active ? 700 : 500, fontSize:14, textAlign:'left', transition:'all 0.15s',
+                  borderLeft: active ? `3px solid ${C.gold}` : '3px solid transparent',
+                }}>
+                  <tab.icon size={18} /> {tab.label}
                 </button>
               );
             })}
           </nav>
 
           <div style={{ marginTop:'auto', padding:'16px 20px', borderTop:`1px solid ${C.border}` }}>
-            <PillDuplo />
-            <div style={{ color: C.muted, fontSize:10, marginTop:6 }}>Dados consolidados</div>
+            {isAdmin && (
+              <>
+                <PillDuplo />
+                <div style={{ color: C.muted, fontSize:10, marginTop:4, marginBottom:12 }}>Dados consolidados</div>
+              </>
+            )}
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <div>
+                <div style={{ color: C.text, fontSize:13, fontWeight:700 }}>{usuario.nome}</div>
+                <div style={{ color: C.muted, fontSize:10, textTransform:'uppercase', letterSpacing:0.5 }}>
+                  {isAdmin ? 'Administrador' : 'Vendedora'}
+                </div>
+              </div>
+              <button onClick={handleLogout} title="Sair" style={{
+                background:'none', border:`1px solid ${C.border}`, borderRadius:8,
+                padding:'6px 8px', cursor:'pointer', color: C.muted, display:'flex', alignItems:'center',
+              }}>
+                <LogOut size={14} />
+              </button>
+            </div>
           </div>
         </aside>
 
         {/* CONTEÚDO PRINCIPAL */}
         <main className="main-content" style={{ flex:1, overflowX:'hidden', padding:'24px 20px', minWidth:0 }}>
-          {activeTab === 'dashboard' ? <DashboardTab /> : <PedidosTab />}
+          {activeTab === 'dashboard'
+            ? <DashboardTab usuario={usuario} />
+            : <PedidosTab usuario={usuario} />}
         </main>
       </div>
 
@@ -1009,20 +1190,23 @@ export default function App() {
         {tabs.map(tab => {
           const active = activeTab === tab.id;
           return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4,
-                padding:'8px 0', background:'none', border:'none', cursor:'pointer',
-                color: active ? C.gold : C.muted, transition:'color 0.15s',
-              }}
-            >
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+              flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4,
+              padding:'8px 0', background:'none', border:'none', cursor:'pointer',
+              color: active ? C.gold : C.muted, transition:'color 0.15s',
+            }}>
               <tab.icon size={22} />
               <span style={{ fontSize:10, fontWeight:700 }}>{tab.label}</span>
             </button>
           );
         })}
+        <button onClick={handleLogout} style={{
+          flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4,
+          padding:'8px 0', background:'none', border:'none', cursor:'pointer', color: C.muted,
+        }}>
+          <LogOut size={22} />
+          <span style={{ fontSize:10, fontWeight:700 }}>Sair</span>
+        </button>
       </nav>
     </div>
   );
