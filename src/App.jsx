@@ -12,6 +12,7 @@ import {
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 // Troque pelo IP da máquina quando acessar pelo celular na mesma rede
 const API_BASE = "https://dashboard-prohair-api.onrender.com";
+// caso for testar local use: http://127.0.0.1:8000
 
 // ─── PALETA ───────────────────────────────────────────────────────────────────
 const C = {
